@@ -5,73 +5,81 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import shoppingcart.inventory.InventoryService;
-import shoppingcart.inventory.Item;
+import inventory.InventoryService;
+import inventory.Item;
+import shop.BillingService;
+import shop.CartService;
 
 class BillingServiceTest {
 
 	private BillingService billingService;
-	private InventoryService inventoryService;
-	private PrintService printService;
+	private CartService cartService;
 
-	Map<String, Item> inventory;
+	static Map<String, Item> inventory = new HashMap<>();
 
 	@BeforeEach
 	void setUp() throws Exception {
 		this.billingService = new BillingService();
-		this.inventoryService = new InventoryService();
-		this.printService = new PrintService(); 
-		inventory = inventoryService.getItemsFromInventory();
+		this.cartService = new CartService();
+	
+	}
+	
+	@BeforeAll
+	public static void init() {
+		inventory.put("01001", new Item("01001", "Apple", 1.1));
+		inventory.put("01002", new Item("01002", "Banana", 1.6));
+		inventory.put("01003", new Item("01003", "Carrot", 0.9));
+		inventory.put("01004", new Item("01004", "Mango", 3.2));
+		InventoryService.setInventory(inventory);
 	}
 
 	@Test
 	void testAddItemToCart() {
 		int expectedCount = 1;
-
-		billingService.addItemToCart("01001");
-		assertEquals(expectedCount, billingService.getItemsCount("01001"));
+		cartService.addToCart("01001");
+		assertEquals(expectedCount, cartService.getItemsCount("01001"));
 	}
-
+	
 	@Test
 	void testBillingService() {
 		Double expectedBill = 4.7;
-		billingService.addItemToCart("01001");
-		billingService.addItemToCart("01001");
-		billingService.addItemToCart("01002");
-		billingService.addItemToCart("01003");
-		assertEquals(expectedBill, billingService.getTotalBillingAmountOfCart(inventory));
+		cartService.addToCart("01001");
+		cartService.addToCart("01001");
+		cartService.addToCart("01002");
+		cartService.addToCart("01003");
+		assertEquals(expectedBill, billingService.getTotalBillAmount(cartService.getCart()));
+	}
+	
+	@Test
+	void testTotalBillWhenCartIsEmpty()
+	{
+		Double expectedBill=0.0;
+		assertEquals(expectedBill,billingService.getTotalBillAmount(cartService.getCart()));
 	}
 
 	@Test
-	void testItemCountWhenCartIsEmpty()
+	void testItemCountWhenCartIsEmpty() 
 	{
 		int expectedCount = 0;
-		assertEquals(expectedCount,billingService.getItemsCount("01001"));
+		assertEquals(expectedCount, cartService.getItemsCount("01001"));
 	}
-	
+
 	@Test
-	void testBillWhenTheCartIsEmpty()
-	{
-		Double expectedBill = 0.0;
-		assertEquals(expectedBill,billingService.getTotalBillingAmountOfCart(inventory));
+	void testPrintForLineItems() {
+		String expectedPrint = "\n1 x Apple @1.1 = 1.1";
+		String actualPrint = billingService.getFormattedLineItems(1, "Apple", 1.1,1.1);
+		assertEquals(expectedPrint, actualPrint);
 	}
-	
+
 	@Test
-	void testPrintServiceForItems()
-	{
-		Object expectedPrint = "1 x Apple @1.1";
-		Object actualPrint = printService.printBill(1,"Apple",1.1);
-		assertEquals(expectedPrint,actualPrint);
+	void testPrintForTotalBill() {
+		String expectedPrint = "\n\nTotal = 1.1";
+		String actualPrint = billingService.getFormattedTotalAmount(1.1);
+		assertEquals(expectedPrint, actualPrint);
 	}
-	
-	@Test
-	void testPrintServiceForTotalBill()
-	{
-		Object expectedPrint = "Total = 1.1";
-		Object actualPrint = printService.printTotalBill(1.1);
-	    assertEquals(expectedPrint,actualPrint);
-	}
+
 }

@@ -1,4 +1,4 @@
-package shoppingcart.inventory;
+package inventory;
 
 public class Item {
   
@@ -7,7 +7,6 @@ public class Item {
 	private final Double price;
 	
 	public Item(String barcode, String name, Double price) {
-		super();
 		this.barcode = barcode;
 		this.name = name;
 		this.price = price;

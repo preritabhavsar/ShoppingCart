@@ -8,7 +8,6 @@
 	<name>ShoppingCart2</name>
 	<description>ShoppingCart2</description>
 	<dependencies>
-		<!-- https://mvnrepository.com/artifact/junit/junit -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
